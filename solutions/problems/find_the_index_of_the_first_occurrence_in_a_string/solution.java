@@ -1,52 +1,65 @@
 class Solution {
+    public void getLongestPrefixSuffix(String s, int l[]) {
+        l[0] = 1;
+        
+        // s = "aaabaaa"
+        // s(0,0) = "a"
+        // l[0][0] = 1
+        // s(0,1) = "aa"
+        // l[0][1] = "aa"
+        // s(0, 2) = "aaa"
+        // l[0][2] = "aaa" = 3
+        // s(0, 4) = "aaab"
+        // l[0][4] = b;
+        
+        // haystack = "aaaxaaaaabaaa"
+        //             aaab
+        //             shift left ptr by how many chars?
+        // if the beginning cgars are equal to the eding chars
+        // shift left ptr by those many chars
+        
+        // leftPtr += longestPrefixThatsAlsoSuffix at i where haystack(i) =/= string(j)
+        
+        int runningMatchingChars = 0;
+        int i = 1;
+        while (i < s.length()) {
+            if (s.charAt(i) == s.charAt(runningMatchingChars))
+                runningMatchingChars++;
+            else
+                runningMatchingChars = 0;
+            
+            l[i++] = runningMatchingChars;
+        }
+    }
+    
     public int strStr(String haystack, String needle) {
         
-        int l = 0, r = 0, curr = 0;
-        int []repeatingCharsTill = new int[needle.length()];
-
-        repeatingCharsTill[0] = 0;
-
-        while (curr < needle.length() && r < haystack.length())
-        {
-            if(curr > 0 && needle.charAt(curr) == needle.charAt(curr-1))
-            repeatingCharsTill[curr] = repeatingCharsTill[curr - 1] + 1;
-            else
-            repeatingCharsTill[curr] = 0;
-
-            if (needle.charAt(curr) == haystack.charAt(r))
+        int n = needle.length();
+        int longestPrefixThatsAlsoSuffix[] = new int[n];
+        
+        getLongestPrefixSuffix(needle, longestPrefixThatsAlsoSuffix);
+        
+        int i = 0, j = 0;
+        while(i < haystack.length() && j < n) {
+            if (haystack.charAt(i) == needle.charAt(j))
             {
-                curr++;
-                r++;
-            } 
-            else {
-                //loss case
-                // since needle[curr] != haystack[r] & needle[curr] equals all the repeatingCharsAt[curr] before it, all those chars are also != haystack[r]
-    //so, we skip the comparisons of those chars
-
-                if (repeatingCharsTill[curr] > 0)
-                    curr -= repeatingCharsTill[curr];
-                else
-                {
-                    /*
-                    L.  R
-                    |.  |
-                    abccyabccx
-
-                        curr
-                        |
-                    abccx
-
-                    */
-                    l = l + 1;
-                    r = l;
-                    curr = 0;
+                i++;
+                j++;
+            } else {
+                if (j == 0)
+                    i++;
+                else {
+                    i -= j;
+                    
+                    int wasteChars = Math.max(1, longestPrefixThatsAlsoSuffix[j]);
+                    i += wasteChars;
+                    j = 0;
                 }
             }
         }
-
-        if (curr == needle.length())
-        return l;
+        if (j == n)
+            return i - n;
         else 
-        return -1; 
+            return -1;
     }
 }
